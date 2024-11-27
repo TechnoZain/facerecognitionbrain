@@ -1,9 +1,10 @@
 body {
-  margin: 0;
+  margin: 10px;
   font-family: -apple-system, BlinkMacSystemFont, 'Courier New', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(89deg, #FF5EDF 0%, #04C8DE 100%);
+  height: max-content;
 }
 
 button {
