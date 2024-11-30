@@ -9,63 +9,26 @@ import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
 import './App.css';
 
-const returnClarifaiRequestOptions = (imageUrl) => {
-  const PAT = '8ac2dae10d45414e8e63cfbb77331f3f';
-
-  const USER_ID = 'clarifai';       
-  const APP_ID = 'main';
+const initialState = {
+    input: '',
+    imageUrl: '',
+    box: {},
+    route: 'signin',
+    isSignedIn: false,
+    user: {
+      id: '',
+      name: '',
+      email: '',
+      entries: 0,
+      joined: ''
+    }
   
-     
-  const IMAGE_URL = imageUrl;
-
-  const raw = JSON.stringify({
-    "user_app_id": {
-        "user_id": USER_ID,
-        "app_id": APP_ID
-    },
-    "inputs": [
-        {
-            "data": {
-                "image": {
-                    "url": IMAGE_URL
-                    // "base64": IMAGE_BYTES_STRING
-                }
-            }
-        }
-    ]
-});
-
-  const requestOptions = {
-    method: 'POST',
-    // mode: 'no-cors',
-    headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Key ' + PAT
-    },
-    body: raw
-  };
-
-  return requestOptions;
-
-  }
+}
 
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: '',
-      imageUrl: '',
-      box: {},
-      route: 'signin',
-      isSignedIn: false,
-      user: {
-        id: '',
-        name: '',
-        email: '',
-        entries: 0,
-        joined: ''
-      }
-    }
+    this.state = initialState;
   }
 
   loadUser = (data) => {
@@ -101,13 +64,17 @@ class App extends Component {
     this.setState({input: event.target.value});
   }
 
-  onButtonSubmit = () => {
-    const MODEL_ID = 'face-detection';
-    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105'; 
-    
+  onButtonSubmit = () => { 
+
     this.setState({imageUrl: this.state.input});
 
-    fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", returnClarifaiRequestOptions(this.state.input))
+    fetch('http://localhost:3000/imageurl', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+          input: this.state.input
+      })
+    })
     .then(response =>  response.json())
     .then(result => {
       if(result) {
@@ -122,6 +89,7 @@ class App extends Component {
           .then(count => {
             this.setState(Object.assign(this.state.user, {entries: count}))
           })
+          .catch(console.log)
       }
       this.displayFaceBox(this.calculateFaceLocation(result));
     })
@@ -130,7 +98,7 @@ class App extends Component {
 
   onRouteChange = (route) => {
     if(route === 'signout') {
-      this.setState({isSignedIn: false})
+      this.setState(initialState)
     } else if (route === 'home') {
       this.setState({isSignedIn: true})
     }
